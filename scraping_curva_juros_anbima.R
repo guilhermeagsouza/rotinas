@@ -1,4 +1,5 @@
 # Inspirado e adaptado por https://augustocl.github.io/AugustoLeal/post/2021-05-22-criando-bd-webscraping/
+# Criando um arquivo .bat: https://www.softdownload.com.br/como-automatizar-execucao-de-programas.html
 
 # Pacotes necessários
 library(tidyverse)
@@ -6,7 +7,7 @@ library(httr)
 library(bizdays)
 
 # Nome do input
-name_db <- "hist_coef_pre_ipca.xlsx"
+name_db <- paste0("hist_coef_pre_ipca_",Sys.Date(),".xlsx")
 
 # Função de scraping
 obter_param_ettj <- function(dt) {
@@ -70,36 +71,37 @@ result <- purrr::map_df(data_seq[1:6], deal_error) %>%
   ))
 
 # Salva o arquivo no formato Excel
-result %>% writexl::write_xlsx(glue::glue(name_db))
+result %>% writexl::write_xlsx(paste0(getwd(),"//",glue::glue(name_db)))
 
 # Salvando o arquivo no formato Excel xlsx com uma coluna já preparada para subir os dados no SQL Lite
-result %>%
-  mutate(
-    insert_sql = paste0("INSERT INTO ettjs_parametros ", "VALUES (", '"', data, '"', ",", vertices, ",", ettj_ipca, ",", ettj_pre, ",", inflacao_implicita, ")", ";")
-  ) %>%
-  writexl::write_xlsx(glue::glue(name_db))
+#result %>%
+#  mutate(
+#    insert_sql = paste0("INSERT INTO ettjs_parametros ", "VALUES (", '"', data, '"', ",", vertices, ",", ettj_ipca, ",", ettj_pre, ",", inflacao_implicita, ")", ";")
+#  ) %>%
+#  writexl::write_xlsx(glue::glue(name_db))
 
 # Verifica se a data a ser inserida já se encontra no banco de dados. Se a resposta for não, a tabela é atualizada.
 # save/append data --------------------------------------------------------
-if (file.exists(name_db)) {
-  arquivo <-
-    datas_unicas <- unique(as.Date(readxl::read_xlsx(name_db)$dt, format = "%Y-%m-%d", tz = "UTC"))
-  result <- result %>% dplyr::filter(!dt %in% datas_unicas)
-  
-  write.table(result,
-              file = name_db,
-              append = TRUE,
-              row.names = FALSE,
-              col.names = FALSE,
-              sep = ";",
-              fileEncoding = "UTF-8"
-  )
-} else {
-  write.table(result,
-              file = name_db,
-              append = FALSE,
-              row.names = FALSE,
-              sep = ";",
-              fileEncoding = "UTF-8"
-  )
-}
+#if (file.exists(name_db)) {
+#  arquivo <-
+#    datas_unicas <- unique(as.Date(readxl::read_xlsx(name_db)$dt, format = "%Y-%m-%d", tz = "UTC"))
+#  result <- result %>% dplyr::filter(!dt %in% datas_unicas)
+#  
+#  write.table(result,
+#              file = name_db,
+#              append = TRUE,
+#              row.names = FALSE,
+#              col.names = FALSE,
+#              sep = ";",
+#              fileEncoding = "UTF-8"
+#  )
+#} else {
+#  write.table(result,
+#              file = name_db,
+#              append = FALSE,
+#              row.names = FALSE,
+#              sep = ";",
+#              fileEncoding = "UTF-8"
+#  )
+#}
+#
